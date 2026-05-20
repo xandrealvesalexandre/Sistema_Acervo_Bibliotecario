@@ -35,16 +35,62 @@
     </div>
 
     <script>
-        const API_BASE = "http://localhost/SENAI%202026/ProjetoGestaoAcervoBibliotecario/ProjetoGestaoAcervoBibliotecario/api_livros";
+        const API_BASE = "http://localhost/SENAI%202026/ProjetoGestaoAcervoBibliotecario/api_livros";
 
         async function buscarDadosTabela(){
             try {
                 const resposta = await fetch(`${API_BASE}/livros`);
+
+                if(!resposta.ok){
+                    const erroData = resposta.json();
+                    throw new Error(erroData.message || `Erro HTTP: ${resposta.status}`);
+                }
+
                 const dados = await resposta.json();
+
                 return dados;
             } catch (error) {
                 throw error;
             }
+        }
+
+        async function preenchaTabela($dados) {
+            document.querySelector("#tabela > tbody").innerHTML = ""; // limpa a tabela antes de preencher
+
+            if(!dados || dados.length === 0){
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+                td.colSpan = 10;
+                td.textContent = "Nenhum livro cadastrado.";
+                tr.appendChild(td);
+                tabelaCorpo.appendChild(tr);
+                return;
+            }
+
+            dados.forEach((livro) => {
+                const tr = document.createElement("tr");
+                const tdId = document.createElement("td");
+                tdId.textContent = livro.id_livro;
+                tr.appendChild(tdId);
+
+                const tdTitulo = document.createElement("td");
+                tdTitulo.textContent = livro.titulo;
+                tr.appendChild(tdTitulo);
+
+                const tdDescricao = document.createElement("td");
+                tdDescricao.textContent = livro.descricao;
+                tr.appendChild(tdDescricao);
+
+                const tdAutor = document.createElement("td");
+                tdAutor.textContent = livro.autor;
+                tr.appendChild(tdAutor);
+
+                const tdEstoque = document.createElement("td");
+                tdEstoque.textContent = livro.estoque;
+                tr.appendChild(tdEstoque);
+
+                
+            });
         }
 
         document.addEventListener("DOMContentLoaded", async () => {

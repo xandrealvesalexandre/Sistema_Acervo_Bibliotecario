@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista dos Livros</title>
+</head>
+<body>
+    <h1>Sistema de Gestão de Acervo Bibliotecário</h1>
+    <hr>
+    <h2>Lista dos Livros</h2>  
+    <h3>Menu</h3>
+    <div>
+        <a href="principal.html"><button>Menu Principal</button></a>
+        <a href="cadastro.html"><button>Cadastrar Livro</button></a>
+    </div> 
+    <div>
+        <table id="tabela" border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>TITULO</th>
+                    <th>DESCRICAO</th>
+                    <th>AUTOR</th>
+                    <th>ESTOQUE</th>
+                    <th>EDITAR</th>
+                    <th>EXCLUIR</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Aqui vai a tabela preenchida dinamicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost/SENAI%202026/ProjetoGestaoAcervoBibliotecario/ProjetoGestaoAcervoBibliotecario/api_livros";
+
+        async function buscarDadosTabela(){
+            try {
+                const resposta = await fetch(`${API_BASE}/livros`);
+                const dados = await resposta.json();
+                return dados;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const dados = await buscarDadosTabela();
+            preenchaTabela(dados);
+        })
+    </script>
+</body>
+</html>

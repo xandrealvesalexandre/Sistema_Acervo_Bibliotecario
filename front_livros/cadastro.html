@@ -37,8 +37,12 @@
     </form>
     <script>
 
-        async function getFormData() {
-            
+       async function getFromData(){
+            return{
+                titulo: document.getElementById('titulo').value,
+                autor: document.getElementById('autor').value,
+                descricao: document.getElementById('descricao').value
+            };
         }
 
         async function postCadastro() {

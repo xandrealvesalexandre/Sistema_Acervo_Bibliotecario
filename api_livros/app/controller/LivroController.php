@@ -2,11 +2,13 @@
 
     require_once "../app/model/LivroModel.php";
     require_once "../app/view/LivroView.php";
+    require_once "../app/model/EstoqueModel.php";
 
    class LivroController {
         private $modelLivro;
         private $viewLivro;
         private $db;
+        private $modelEstoque;
 
         public function __construct($db) {
             $this->db = $db;
@@ -15,6 +17,8 @@
 
             //Instanciar a view
             $this->viewLivro = new LivroView();
+
+            $this->modelEstoque = new EstoqueModel($db);
         }
 
         public function getLivros() {
@@ -40,10 +44,45 @@
             if ( isset($data['titulo']) && 
                     isset($data['descricao']) && 
                     isset($data['autor'])) {
+                    try {
+                         $this->db->beginTransaction();
+                        $idLivro = $this->modelLivro->createLivro(
+                                $data['titulo'],
+                                $data['autor'],
+                                $data['descricao']
+                            );
 
-                $this->db->beginTransaction();
-                $this->modelLivro->createLivro($data);
-            }
+                            if (!$idLivro) {
+                                throw new Exception("Erro ao cadastrar livro");
+                            }
+                            $estoqueCriado = $this->modelEstoque->createEstoque($idLivro, 0);
+
+                            if (!$estoqueCriado) {
+                                throw new Exception("Erro ao cadastrar estoque");
+                            }
+
+                            $this->db->commit();
+                            $this->viewLivro->sendResponse([
+                                'message' => 'Livro cadastrado com sucesso.',
+                                'id_livro' => $idLivro
+                            ]);
+                    } catch ( $e) {
+                        if ($this->db->inTransaction()){
+                            $this->db->rollBack();
+                        }
+                            
+                        
+                        $this->viewLivro->sendResponse([
+                            'message' => 'Erro ao cadastrar livro.',
+                            'message' => $e->getMessage()
+                        ], 400);
+                    }  
+            } else {
+                $this->viewLivro->sendResponse([
+                    'message' => 'Dados incompletos.'
+                ], 400);
+            }   
+
         }
    } 
 

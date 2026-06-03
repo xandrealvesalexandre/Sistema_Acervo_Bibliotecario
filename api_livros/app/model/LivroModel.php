@@ -38,6 +38,23 @@
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
+
+        public function createLivro($titulo, $autor, $descricao) {
+            $stmt = $this->db->prepare("
+                INSERT INTO Livros (titulo, autor, descricao) 
+                VALUES (:titulo, :autor, :descricao)
+            ");
+
+            $stmt->bindValue(':titulo', $titulo);
+            $stmt->bindValue(':autor', $autor);
+            $stmt->bindValue(':descricao', $descricao);
+            if ($stmt->execute()){
+                return $this->db->lastInsertId();
+            }
+
+            return false;
+            
+        }
     }
 
 ?>

@@ -37,6 +37,7 @@
                 echo json_encode(["status" => "OK - Sistema Online!"]);
                 http_response_code(200);
                 break;
+
             case 'login':
                 if ($method === "POST") {
                     $usuarioController = new UsuarioController($db);
@@ -46,11 +47,29 @@
                     echo json_encode(["error" => "Método não permitido"]);
                 }
                 break;
+
             case 'livros':
                 if ($method === "GET") {
                     $livroController = new LivroController($db);
                     $livroController->getLivros();
                 }
+                break;
+
+                if ($method === "POST") {
+                    $livroController->createLivro();
+                }
+                break;
+
+            case 'livroTitulo':
+                if ($method === "GET") {
+                    $livroController = new LivroController($db);
+                    $livroController->getLivrosPeloTitulo();
+                    exit;
+                }
+                http_response_code(405); //Metodo nao permitido
+                echo json_encode(["error" => "Método não permitido"]);
+                break;
+
             default:
                 http_response_code(404);
                 echo json_encode(["error" => "Rota não encontrada", "route" => $route]);

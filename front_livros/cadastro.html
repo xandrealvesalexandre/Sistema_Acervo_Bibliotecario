@@ -1,12 +1,87 @@
 <!DOCTYPE html>
-    <html lang="pt-br">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cadastro de Livros</title>
-    </head>
-    <body>
-        
-    </body>
-</html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Livros</title>
+</head>
+<body>
+    <h1>Sistema de Gestão de Acervo Bibliotecário</h1>
+    <hr>
+    <h2>Lista dos Livros</h2>  
+    <h3>Menu</h3>
+    <div>
+        <a href="principal.html"><button>Menu Principal</button></a>
+        <a href="listaLivros.html"><button>Lista Livro</button></a>
+        <br><br>
+    </div> 
+
+    <form id="FormLivro">
+        <div class="form-container">
+            <label for="titulo">Titulo:</label>
+            <input type="text" id="titulo" placeholder="Titulo" required>
+            <br><br>
+            <label for="autor">Autor:</label>
+            <input type="text" id="autor" placeholder="Autor" required>
+            <br><br>
+            <label for="descricao">Descricao:</label>
+            <input type="text" id="descricao" placeholder="Descricao" required>
+            <br><br>
+            <button type="submit">Cadastrar Livro</button>
+            <br><br>
+            <div class="mensagem-user">
+                <p id="mensagem"></p>
+            </div>                  
+        </div>
+    </form>
+    <script>
+
+        async function getFormData() {
+            
+        }
+
+        async function postCadastro() {
+            try{
+                const resposta = await fetch(`${API_BASE}/livro`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(livro)
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    throw new Error( `Erro HTTP: ${resposta.status} - ${resposta.message}`);
+                }
+
+                return dados;
+
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function handleFormSubmit(event){
+            event.preventDefault();
+            const msg = document.getElementById("mensagem");
+            const livro = getFormData();
+            try {
+                const reusltado = await postCadastro(livro);
+                msg.textContent = "Livro cadastrado com sucesso!";
+                msg.style.color = "green";
+                document.getElementById("FormLivro").reset();
+            } catch (error) {
+                msg.textContent = `Erro ao cadastrar livro: ${error.message}`;
+                msg.style.color = "red";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("FormLivro").addEventListener("submit", handleFormSubmit); {
+                
+            }
+        })
+    </script>

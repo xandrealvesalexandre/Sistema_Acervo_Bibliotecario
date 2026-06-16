@@ -70,6 +70,17 @@
                 echo json_encode(["error" => "Método não permitido"]);
                 break;
 
+            case 'livroId':
+                if ($method === "GET") {
+                    $livroController->getLivrosPeloId();
+                    exit;
+                }
+                http_response_code(405); //Metodo nao permitido
+                echo json_encode(["error" => "Método não permitido"]);
+                break;
+
+        
+
             default:
                 http_response_code(404);
                 echo json_encode(["error" => "Rota não encontrada", "route" => $route]);

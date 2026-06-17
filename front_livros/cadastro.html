@@ -36,8 +36,9 @@
         </div>
     </form>
     <script>
+        const API_BASE = "../api_livros/public";
 
-       async function getFromData(){
+       function getFormData(){
             return{
                 titulo: document.getElementById('titulo').value,
                 autor: document.getElementById('autor').value,
@@ -45,9 +46,9 @@
             };
         }
 
-        async function postCadastro() {
+        async function postCadastro(livro) {
             try{
-                const resposta = await fetch(`${API_BASE}/livro`, {
+                const resposta = await fetch(`${API_BASE}/livros`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -58,7 +59,7 @@
                 const dados = await resposta.json();
 
                 if (!resposta.ok) {
-                    throw new Error( `Erro HTTP: ${resposta.status} - ${resposta.message}`);
+                    throw new Error(dados.message || `Erro HTTP: ${resposta.status}`);
                 }
 
                 return dados;
@@ -73,7 +74,7 @@
             const msg = document.getElementById("mensagem");
             const livro = getFormData();
             try {
-                const reusltado = await postCadastro(livro);
+                const resultado = await postCadastro(livro);
                 msg.textContent = "Livro cadastrado com sucesso!";
                 msg.style.color = "green";
                 document.getElementById("FormLivro").reset();
@@ -84,8 +85,8 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("FormLivro").addEventListener("submit", handleFormSubmit); {
-                
-            }
-        })
+            document.getElementById("FormLivro").addEventListener("submit", handleFormSubmit);
+        });
     </script>
+</body>
+</html>

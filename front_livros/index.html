@@ -44,7 +44,16 @@
                     body: JSON.stringify(user)
                 });
 
-                const dados = await resposta.json();
+                const texto = await resposta.text();
+                console.log("Resposta bruta da API:", texto);
+                
+                let dados;
+                try {
+                    dados = JSON.parse(texto);
+                } catch (e) {
+                    console.error("Erro ao converter para JSON:", e);
+                    throw new Error("A API retornou um formato inválido. Verifique o console do navegador.");
+                }
 
                 if (!resposta.ok) {
                     throw new Error(dados.message || `Erro HTTP: ${resposta.status}`);
@@ -67,7 +76,7 @@
             try {
                 const resultado = await Login(user);
                 
-                if (resultado && (resultado.id_usuario || resultado.id)) { 
+                if (resultado && resultado.id_usuario) { 
                     sessionStorage.setItem("usuario", JSON.stringify(resultado));
                     msg.textContent = "Login realizado com sucesso! Redirecionando...";
                     msg.style.color = "green";

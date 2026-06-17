@@ -44,7 +44,7 @@
     </div>
 
     <script>
-        const API_BASE = "http://localhost/SENAI%202026/ProjetoGestaoAcervoBibliotecario/api_livros";
+        const API_BASE = "../api_livros/public";
 
         async function buscarDadosTabela() {
             const resposta = await fetch(`${API_BASE}/livros`);
@@ -57,6 +57,27 @@
             return await resposta.json();
         }
 
+        async function deleteLivro(id) {
+            const bodyData = {
+                id_livro: id
+            };
+            try{
+                const resposta = await fetch(`${API_BASE}/livros`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(bodyData)
+                });
+                const dados = await resposta.json();
+                if (!resposta.ok) {
+                    throw new Error(dados.message || `Erro HTTP: ${resposta.status} ${bodyData.id_livro} - ${dados.message}`);
+                }
+                return dados;
+            }catch (error) {
+                throw error;
+            }
+        }
         async function preenchaTabela(dados) {
             const tabelaCorpo = document.querySelector("#tabela > tbody");
             tabelaCorpo.innerHTML = "";
@@ -91,7 +112,7 @@
                 tr.appendChild(tdAutor);
 
                 const tdEstoque = document.createElement("td");
-                tdEstoque.textContent = livro.estoque;
+                tdEstoque.textContent = livro.estoque !== null ? livro.estoque : "N/A";
                 tr.appendChild(tdEstoque);
 
                 const tdEditar = document.createElement("td");
@@ -99,13 +120,22 @@
                 const linkEditar = document.createElement("a");
                 linkEditar.textContent = "✏️";
                 tdEditar.appendChild(linkEditar);
+                linkEditar.href = `editar.html?id=${livro.id_livro}`;
                 tr.appendChild(tdEditar);
+
 
                 const tdDelete = document.createElement("td");
                 tdDelete.classList.add("delete-icon");
                 const btnDelete = document.createElement("button");
                 btnDelete.textContent = "🗑️";
                 tdDelete.appendChild(btnDelete);
+                btnDelete.addEventListener("click", () => {
+                    if (confirm(`Tem certeza de que deseja excluir o livro ${livro.titulo}?`)) {
+                        deleteLivro(livro.id_livro);
+                        alert("Livro excluído com sucesso!");
+                        location.reload();
+                    }
+                });
                 tr.appendChild(tdDelete);
 
                 tabelaCorpo.appendChild(tr);

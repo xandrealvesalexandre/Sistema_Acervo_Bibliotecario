@@ -27,8 +27,8 @@
         }
 
         public function getLivrosPeloTitulo() {
-            $titulo = $_GET['titulo'];
-            if(isset($titulo)) {
+            $titulo = $_GET['titulo'] ?? null;
+            if ($titulo) {
                 $data = $this->modelLivro->getLivrosPeloTitulo($titulo);
                 $this->viewLivro->sendResponse($data, 200);
             } else {
@@ -36,6 +36,20 @@
                     'message' => 'Por favor, insira um título válido.'
                 ], 400);
             }
+        }
+
+        public function getLivrosPeloId() {
+            $id = $_GET['id'] ?? null;
+
+            if (isset($id)) {
+                $livro = $this->modelLivro->getLivroPeloId($id);
+                $this->viewLivro->sendResponse($livro, 200);
+            } else {
+                $this->viewLivro->sendResponse([
+                    'message' => 'Por favor, insira um id válido.'
+                ], 400);
+            }
+
         }
 
         public function createLivro() {
@@ -66,15 +80,15 @@
                                 'message' => 'Livro cadastrado com sucesso.',
                                 'id_livro' => $idLivro
                             ]);
-                    } catch ( $e) {
+                    } catch (Exception $e) {
                         if ($this->db->inTransaction()){
                             $this->db->rollBack();
                         }
                             
                         
                         $this->viewLivro->sendResponse([
-                            'message' => 'Erro ao cadastrar livro.',
-                            'message' => $e->getMessage()
+                            'error' => 'Erro ao cadastrar livro.',
+                            'detail' => $e->getMessage()
                         ], 400);
                     }  
             } else {
@@ -84,6 +98,24 @@
             }   
 
         }
-   } 
 
+        public function updateLivro() {
+            $data = json_decode(file_get_contents('php://input'), true);
+            if ( isset($data['id']) && 
+                    isset($data['titulo']) && 
+                    isset($data['descricao']) && 
+                    isset($data['autor'])) {
+            $result = $this->modelLivro->updateLivro($data['id'], $data['titulo'], $data['autor'], $data['descricao']);
+                    $this->viewLivro->sendResponse([
+                        'message' => 'Livro atualizado com sucesso.',
+                        'id_livro' => $data['id']
+                    ], 200);    
+            } else {
+                $this->viewLivro->sendResponse([
+                    'message' => 'Dados incompletos.'
+                ], 400);
+            }
+
+        }
+    }
 ?>

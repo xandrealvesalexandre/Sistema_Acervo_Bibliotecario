@@ -1,7 +1,7 @@
 <?php
 
-    require_once '../app/model/UsuarioModel.php';
-    require_once '../app/view/UsuarioView.php';
+    require_once "../app/model/UsuarioModel.php";
+    require_once "../app/view/UsuarioView.php";
 
     class UsuarioController {
         private $modelUsuario; // Para armazenar "as informações" da classe Controller, em forma de atributo
@@ -34,4 +34,4 @@
         }
     }
 
-?>
+

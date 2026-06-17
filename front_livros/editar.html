@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Editar Livro</title>
+    </head>
+    <body>
+        <h1><a href="listaLivros.html">Editar Livro</a></h1>
+
+        <form id="formLivro">
+            <label>
+                id:
+            </label>
+            <input type="number" id="id" required readonly>
+            <br>
+            <label>
+                Título:
+            </label>
+            <input type="text" id="titulo" required>
+            <br>
+            <label>
+                Descricao:
+            </label>
+            <input type="text" id="descricao" required>
+            <br>
+            <label>
+                Autor:
+            </label>
+            <input type="text" id="autor" required>
+            <br>
+            <button type="submit">Salvar</button>
+        </form>
+
+        <p id="mensagem"></p>
+        
+        <script>
+
+            const API_BASE = "../api_livros/public";
+
+            async function getLivro(id) {
+                try {
+                    const resposta = await fetch(`${API_BASE}/livroId?id=${id}`);
+
+                    if (!resposta.ok) {
+                        const erroData = await resposta.json();
+                        throw new Error(erroData.message || `Erro HTTP: ${resposta.status}`);
+                    }
+                    
+                    const livro = await resposta.json();
+                    return livro;
+                    
+                } catch (error) {
+                    throw error;
+                }
+            }
+
+            function preencherFormulario(dados) {
+                document.getElementById("id").value = dados.id_livro;
+                document.getElementById("titulo").value = dados.titulo;
+                document.getElementById("descricao").value = dados.descricao;
+                document.getElementById("autor").value = dados.autor;
+            }
+
+            function getLivroFormData() {
+                return {
+                    id: document.getElementById("id").value,
+                    titulo: document.getElementById("titulo").value,
+                    descricao: document.getElementById("descricao").value,
+                    autor: document.getElementById("autor").value
+                };
+            }
+
+            async function atualizarLivro(livro) {
+                try {
+                    const resposta = await fetch(`${API_BASE}/livros`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(livro)
+                    });
+
+                    const dados = await resposta.json();
+
+                    if (!resposta.ok) {
+                        throw new Error(dados.message || `Erro HTTP: ${resposta.status}`);
+                    }
+
+                    return dados;
+                } catch (error) {
+                    throw error;
+                } 
+            }
+
+            async function enviarForm(event) {
+                event.preventDefault();
+                const form = document.getElementById("formLivro");
+                const msg = document.getElementById("mensagem");
+                
+                const livro = await getLivroFormData();
+
+                try {
+                    const resultado = await atualizarLivro(livro);
+                    msg.textContent = "Livro atualizado com sucesso!";
+                    msg.style.color = "green";
+
+                } catch (error) {
+                    msg.textContent = `Erro ao atualizar livro: ${error.message}`;
+                    msg.style.color = "red";
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", async () => {
+                const params = new URLSearchParams(window.location.search);
+                const id = params.get("id");
+                const dados = await getLivro(id);
+                preencherFormulario(dados);
+                document.getElementById("formLivro").addEventListener("submit", enviarForm);
+            })
+        </script>
+    </body>
+</html>

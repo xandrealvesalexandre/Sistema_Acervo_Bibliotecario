@@ -108,10 +108,10 @@
 
 	SELECT nome, sobrenome FROM Usuarios;
     
-    SELECT 
-    Livros.titulo, Estoque.quantidade_atual 
-		FROM Livros 
-        INNER JOIN Estoque ON Livros.id_livro = Estoque.quantidade_atual;
+	    SELECT 
+	    Livros.titulo, Estoque.quantidade_atual 
+			FROM Livros 
+	        INNER JOIN Estoque ON Livros.id_livro = Estoque.id_livro;
         
 	SELECT 
     Usuarios.nome, Livros.titulo, Log_movimentacao_estoque.quantidade, log_movimentacao_estoque.tipo

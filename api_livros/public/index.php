@@ -1,5 +1,5 @@
 <?php
-
+    ob_start();
     // Configurações de Erro
     error_reporting(E_ALL);
     ini_set("display_errors", 1);
@@ -9,7 +9,7 @@
     header("Content-Type: application/json; charset=utf-8");
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '*'; // API recebe aquisições de qualquer domínio
     header('Access-Control-Allow-Origin: ' . $origin);
-    header('Access-Control-Allow-Methods: POST, GET, DELETE, OPTIONS');
+    header('Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -49,14 +49,20 @@
                 break;
 
             case 'livros':
+                $livroController = new LivroController($db);
                 if ($method === "GET") {
-                    $livroController = new LivroController($db);
                     $livroController->getLivros();
-                }
-                break;
-
-                if ($method === "POST") {
+                    exit;
+                } elseif ($method === "POST") {
                     $livroController->createLivro();
+                    exit;
+                } elseif ($method === "PUT") {
+                    $livroController = new LivroController($db);
+                    $livroController->updateLivro();
+                    exit;
+                }else {
+                    http_response_code(405);
+                    echo json_encode(["error" => "Método não permitido"]);
                 }
                 break;
 
@@ -64,6 +70,16 @@
                 if ($method === "GET") {
                     $livroController = new LivroController($db);
                     $livroController->getLivrosPeloTitulo();
+                    exit;
+                }
+                http_response_code(405); //Metodo nao permitido
+                echo json_encode(["error" => "Método não permitido"]);
+                break;
+            
+            case 'livroId':
+                if ($method === "GET") {
+                    $livroController = new LivroController($db);
+                    $livroController->getLivrosPeloId();
                     exit;
                 }
                 http_response_code(405); //Metodo nao permitido
@@ -83,4 +99,3 @@
             "detail" => $e->getMessage()
         ]);
     }
-?>

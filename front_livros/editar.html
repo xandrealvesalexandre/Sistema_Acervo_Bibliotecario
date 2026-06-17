@@ -6,13 +6,21 @@
         <title>Editar Livro</title>
     </head>
     <body>
+<<<<<<< HEAD
         <h1><a href="listaLivros.html">Editar Livro</a></h1>
+=======
+        <h1>Editar Livro</h1>
+>>>>>>> ae626822f61021ab724739e46a36b949f19c25c4
 
         <form id="formLivro">
             <label>
                 id:
             </label>
+<<<<<<< HEAD
             <input type="number" id="id" required readonly>
+=======
+            <input type="number" id="id" required disabled>
+>>>>>>> ae626822f61021ab724739e46a36b949f19c25c4
             <br>
             <label>
                 Título:
@@ -36,6 +44,7 @@
         
         <script>
 
+<<<<<<< HEAD
             const API_BASE = "../api_livros/public";
 
             async function getLivro(id) {
@@ -49,12 +58,20 @@
                     
                     const livro = await resposta.json();
                     return livro;
+=======
+            const API_BASE = "http://localhost/SENAI%202026/ProjetoGestaoAcervoBibliotecario/api_livros";
+
+            async function getLivro(id) {
+                try {
+                    const response = await fetch(`${API_BASE}/livroId?id=${id}`);
+>>>>>>> ae626822f61021ab724739e46a36b949f19c25c4
                     
                 } catch (error) {
                     throw error;
                 }
             }
 
+<<<<<<< HEAD
             function preencherFormulario(dados) {
                 document.getElementById("id").value = dados.id_livro;
                 document.getElementById("titulo").value = dados.titulo;
@@ -111,13 +128,22 @@
                 }
             }
 
+=======
+>>>>>>> ae626822f61021ab724739e46a36b949f19c25c4
             document.addEventListener("DOMContentLoaded", async () => {
                 const params = new URLSearchParams(window.location.search);
                 const id = params.get("id");
                 const dados = await getLivro(id);
                 preencherFormulario(dados);
+<<<<<<< HEAD
                 document.getElementById("formLivro").addEventListener("submit", enviarForm);
             })
         </script>
     </body>
 </html>
+=======
+            })
+        </script>
+    </body>
+</html>
+>>>>>>> ae626822f61021ab724739e46a36b949f19c25c4

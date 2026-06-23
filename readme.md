@@ -1,53 +1,57 @@
-# Projeto de Gestão de Acervo Bibliotecário (PGAB)
+# Projeto de Gestão de Acervo Bibliotecário
 
-Este é um sistema robusto para o gerenciamento de acervos bibliotecários e controle rigoroso de estoque de livros. O projeto é estruturado dividindo de forma clara as responsabilidades entre uma API Backend desenvolvida em **PHP** sob a arquitetura **MVC** e uma interface Frontend independente baseada em páginas web.
+Este é um sistema completo para gerenciamento de acervos bibliotecários e controle de fluxo de estoque de livros. O projeto é dividido de forma clara entre uma API Backend desenvolvida em **PHP** sob a arquitetura clássica **MVC (Model-View-Controller)** e uma interface Frontend web dinâmica e estilizada.
 
 ---
 
 ## 🚀 Funcionalidades Principais
 
-* **Gestão de Usuários:** Cadastro, controle de acessos e autenticação no sistema.
-* **Gestão do Acervo:** Cadastro, edição, remoção e listagem detalhada de obras literárias.
-* **Controle de Estoque:** Módulo dedicado à movimentação (entradas e saídas) de exemplares físicos do acervo.
-* **API RESTful:** Endpoints em PHP que centralizam as regras de negócio e fornecem respostas estruturadas para o frontend.
+* **Gestão de Usuários:** Cadastro, autenticação e controle de acessos ao sistema.
+* **Gestão de Acervo:** Cadastro, edição, remoção e listagem em tempo real de obras literárias.
+* **Controle de Estoque Avançado:** Camada dedicada exclusivamente para gerenciar a entrada, saída e movimentação física de exemplares do acervo.
+* **API RESTful:** Endpoints padronizados em PHP para fornecer respostas estruturadas à interface do usuário de forma assíncrona.
 
 ---
 
 ## 📂 Estrutura de Diretórios
 
-Abaixo está o mapeamento completo da estrutura de pastas atualizada do projeto:
+Abaixo está o mapeamento completo e atualizado da árvore de arquivos do projeto com base na imagem `image_378c3a.png`:
 
 ```text
-PGABV4_CORRIGIDO/
-└── pgabv4/
-    └── ProjetoGestaoAcervoBibliotecario/
-        ├── api_livros/                  # Backend da Aplicação (API PHP)
-        │   ├── app/
-        │   │   ├── controller/          # Controladores (Regras de negócio e rotas)
-        │   │   │   ├── LivroController.php
-        │   │   │   └── UsuarioController.php
-        │   │   ├── model/               # Modelos (Comunicação com a Base de Dados)
-        │   │   │   ├── EstoqueModel.php     # Novo: Regras de movimentação de estoque
-        │   │   │   ├── LivroModel.php
-        │   │   │   └── UsuarioModel.php
-        │   │   └── view/                # Formatação das respostas de saída da API
-        │   │       ├── LivroView.php
-        │   │       └── UsuarioView.php
-        │   ├── config/                  # Arquivos de configuração do sistema
-        │   │   ├── db.php               # Conexão principal com o Banco de Dados
-        │   │   ├── testedb.php          # Script de validação de conexão 1
-        │   │   └── testedb2.php         # Script de validação de conexão 2
-        │   ├── public/                  # Diretório público / Entrada do servidor
-        │   │   └── index.php            # Arquivo principal (Router)
-        │   └── .htaccess                # Reescrita de URLs do servidor Apache
-        │
-        ├── BD/                          # Camada de Banco de Dados
-        │   └── script-bd.sql            # Script SQL de criação de tabelas e sementes
-        │
-        └── front_livros/                # Interface do Usuário (Frontend)
-            ├── cadastro.html            # Tela de cadastro de livros e usuários
-            ├── editar.html              # Nova: Tela para edição de dados existentes
-            ├── index.html               # Tela de Login / Portal de entrada
-            ├── listaLivros.html         # Painel de visualização e busca do acervo
-            ├── movimentarEstoque.html   # Gerenciamento de entradas/saídas do estoque
-            └── principal.html           # Dashboard / Menu principal da aplicação
+ProjetoGestaoAcervoBibliotecario/
+│
+├── api_livros/                  # Backend da Aplicação (API PHP)
+│   ├── app/
+│   │   ├── controller/          # Controladores (Regras de negócio e rotas da API)
+│   │   │   ├── EstoqueController.php   # NOVO: Controle de fluxos de estoque
+│   │   │   ├── LivroController.php
+│   │   │   └── UsuarioController.php
+│   │   ├── model/               # Modelos (Comunicação com o Banco de Dados)
+│   │   │   ├── EstoqueModel.php
+│   │   │   ├── LivroModel.php
+│   │   │   └── UsuarioModel.php
+│   │   └── view/                # Views (Formatadores de respostas de saída da API)
+│   │       ├── EstoqueView.php         # NOVO: Estruturação de dados do estoque
+│   │       ├── LivroView.php
+│   │       └── UsuarioView.php
+│   ├── config/                  # Arquivos de configuração global
+│   │   ├── db.php               # Conexão oficial com o Banco de Dados
+│   │   ├── testedb.php          # Script de testes de conexão 1
+│   │   └── testedb2.php         # Script de testes de conexão 2
+│   ├── public/                  # Diretório público de entrada
+│   │   └── index.php            # Arquivo index / Router principal da API
+│   └── .htaccess                # Reescrita de URLs para o servidor Apache
+│
+├── BD/                          # Camada de Persistência
+│   └── script-bd.sql            # Script SQL de criação de tabelas e cargas iniciais
+│
+└── front_livros/                # Interface do Usuário (Frontend)
+    ├── assets/                  # Arquivos de recursos estáticos
+    │   └── css/
+    │       └── style.css        # NOVO: Folha de estilos unificada do sistema
+    ├── cadastro.html            # Tela de cadastro de livros e usuários
+    ├── editar.html              # Tela de edição de registros
+    ├── index.html               # Tela de login / Portal de entrada
+    ├── listaLivros.html         # Painel de busca e visualização do acervo
+    ├── movimentarEstoque.html   # Tela de gerenciamento de entrada/saída de livros
+    └── principal.html           # Painel de controle / Menu principal do sistema

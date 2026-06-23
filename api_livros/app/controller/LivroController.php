@@ -12,12 +12,8 @@
 
         public function __construct($db) {
             $this->db = $db;
-            //Conectar no DB e instanciar o model e consultar os livros
             $this->modelLivro = new LivroModel($db);
-
-            //Instanciar a view
             $this->viewLivro = new LivroView();
-
             $this->modelEstoque = new EstoqueModel($db);
         }
 
@@ -40,7 +36,6 @@
 
         public function getLivrosPeloId() {
             $id = $_GET['id'] ?? null;
-
             if (isset($id)) {
                 $livro = $this->modelLivro->getLivroPeloId($id);
                 $this->viewLivro->sendResponse($livro, 200);
@@ -49,73 +44,72 @@
                     'message' => 'Por favor, insira um id válido.'
                 ], 400);
             }
-
         }
 
         public function createLivro() {
             $data = json_decode(file_get_contents('php://input'), true);
-            
-            if ( isset($data['titulo']) && 
-                    isset($data['descricao']) && 
-                    isset($data['autor'])) {
+            if ( isset($data['titulo']) && isset($data['descricao']) && isset($data['autor'])) {
                     try {
-                         $this->db->beginTransaction();
-                        $idLivro = $this->modelLivro->createLivro(
-                                $data['titulo'],
-                                $data['autor'],
-                                $data['descricao']
-                            );
-
-                            if (!$idLivro) {
-                                throw new Exception("Erro ao cadastrar livro");
-                            }
-                            $estoqueCriado = $this->modelEstoque->createEstoque($idLivro, 0);
-
-                            if (!$estoqueCriado) {
-                                throw new Exception("Erro ao cadastrar estoque");
-                            }
-
-                            $this->db->commit();
-                            $this->viewLivro->sendResponse([
-                                'message' => 'Livro cadastrado com sucesso.',
-                                'id_livro' => $idLivro
-                            ]);
-                    } catch (Exception $e) {
-                        if ($this->db->inTransaction()){
-                            $this->db->rollBack();
-                        }
-                            
+                        $this->db->beginTransaction();
+                        $idLivro = $this->modelLivro->createLivro($data['titulo'], $data['autor'], $data['descricao']);
+                        if (!$idLivro) throw new Exception("Erro ao cadastrar livro");
                         
+                        $estoqueCriado = $this->modelEstoque->createEstoque($idLivro, 0);
+                        if (!$estoqueCriado) throw new Exception("Erro ao cadastrar estoque");
+
+                        $this->db->commit();
+                        $this->viewLivro->sendResponse([
+                            'message' => 'Livro cadastrado com sucesso.',
+                            'id_livro' => $idLivro
+                        ]);
+                    } catch (Exception $e) {
+                        if ($this->db->inTransaction()) $this->db->rollBack();
                         $this->viewLivro->sendResponse([
                             'error' => 'Erro ao cadastrar livro.',
                             'detail' => $e->getMessage()
                         ], 400);
                     }  
             } else {
-                $this->viewLivro->sendResponse([
-                    'message' => 'Dados incompletos.'
-                ], 400);
+                $this->viewLivro->sendResponse(['message' => 'Dados incompletos.'], 400);
             }   
-
         }
 
         public function updateLivro() {
             $data = json_decode(file_get_contents('php://input'), true);
-            if ( isset($data['id']) && 
-                    isset($data['titulo']) && 
-                    isset($data['descricao']) && 
-                    isset($data['autor'])) {
-            $result = $this->modelLivro->updateLivro($data['id'], $data['titulo'], $data['autor'], $data['descricao']);
+            if ( isset($data['id']) && isset($data['titulo']) && isset($data['descricao']) && isset($data['autor'])) {
+                $result = $this->modelLivro->updateLivro($data['id'], $data['titulo'], $data['autor'], $data['descricao']);
+                if ($result) {
                     $this->viewLivro->sendResponse([
                         'message' => 'Livro atualizado com sucesso.',
                         'id_livro' => $data['id']
-                    ], 200);    
+                    ], 200);
+                } else {
+                    $this->viewLivro->sendResponse(['message' => 'Erro ao atualizar livro.'], 500);
+                }
+            } else {
+                $this->viewLivro->sendResponse(['message' => 'Dados incompletos.'], 400);
+            }
+        }
+
+        public function deleteLivro() {
+            // Tenta pegar o ID do corpo (JSON) ou da URL (Query String)
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = $data['id'] ?? $_GET['id'] ?? null;
+
+            if (isset($id)) {
+                $result = $this->modelLivro->deleteLivro($id);
+                if ($result) {
+                    $this->viewLivro->sendResponse([
+                        'message' => 'Livro excluido com sucesso.',
+                        'id_livro' => $id
+                    ], 200);
+                } else {
+                    $this->viewLivro->sendResponse(['message' => 'Erro ao excluir livro no banco de dados.'], 500);
+                }
             } else {
                 $this->viewLivro->sendResponse([
-                    'message' => 'Dados incompletos.'
+                    'message' => 'Dados incompletos. Por favor, insira um id válido.'
                 ], 400);
             }
-
         }
     }
-?>

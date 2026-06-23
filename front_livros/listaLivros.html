@@ -2,45 +2,45 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista dos Livros</title>
+    <title>Lista dos Livros - Gestão de Acervo</title>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <h1>Sistema de Gestão de Acervo Bibliotecário</h1>
-    <hr>
-    <h2>Lista dos Livros</h2>  
-    <h3>Menu</h3>
-    <div>
-        <a href="principal.html"><button>Menu Principal</button></a>
-        <a href="cadastro.html"><button>Cadastrar Livro</button></a>
-        <br><br>
-    </div> 
+    <div class="container">
+        <h1>Sistema de Gestão de Acervo Bibliotecário</h1>
+        <hr>
+        <h2>Lista dos Livros</h2>  
+        
+        <div class="menu-actions">
+            <a href="principal.html" class="btn btn-secondary">Menu Principal</a>
+            <a href="cadastro.html" class="btn">Cadastrar Livro</a>
+        </div> 
 
-    <!-- Filtros -->
-    <div>
-        <input type="text" id="filtroTitulo" placeholder="Buscar livro...">
-        <button id="filtrar">Buscar</button>
+        <div class="filter-container">
+            <input type="text" id="filtroTitulo" placeholder="Buscar livro pelo título...">
+            <button id="filtrar">Buscar</button>
+        </div>
         <p id="mensagem"></p>
-    </div>
 
-    <div>
-        <table id="tabela" border="1">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>TITULO</th>
-                    <th>DESCRICAO</th>
-                    <th>AUTOR</th>
-                    <th>ESTOQUE</th>
-                    <th>EDITAR</th>
-                    <th>EXCLUIR</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Aqui vai a tabela preenchida dinamicamente -->
-            </tbody>
-        </table>
+        <div style="overflow-x: auto;">
+            <table id="tabela">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>TÍTULO</th>
+                        <th>DESCRIÇÃO</th>
+                        <th>AUTOR</th>
+                        <th>ESTOQUE</th>
+                        <th>EDITAR</th>
+                        <th>EXCLUIR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Preenchido dinamicamente -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -48,36 +48,31 @@
 
         async function buscarDadosTabela() {
             const resposta = await fetch(`${API_BASE}/livros`);
-
             if (!resposta.ok) {
                 const erroData = await resposta.json();
                 throw new Error(erroData.message || `Erro HTTP: ${resposta.status}`);
             }
-
             return await resposta.json();
         }
 
         async function deleteLivro(id) {
-            const bodyData = {
-                id_livro: id
-            };
-            try{
+            const bodyData = { id: id };
+            try {
                 const resposta = await fetch(`${API_BASE}/livros`, {
                     method: "DELETE",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(bodyData)
                 });
                 const dados = await resposta.json();
                 if (!resposta.ok) {
-                    throw new Error(dados.message || `Erro HTTP: ${resposta.status} ${bodyData.id_livro} - ${dados.message}`);
+                    throw new Error(dados.message || `Erro HTTP: ${resposta.status}`);
                 }
                 return dados;
-            }catch (error) {
+            } catch (error) {
                 throw error;
             }
         }
+
         async function preenchaTabela(dados) {
             const tabelaCorpo = document.querySelector("#tabela > tbody");
             tabelaCorpo.innerHTML = "";
@@ -87,6 +82,7 @@
                 const td = document.createElement("td");
                 td.colSpan = 7;
                 td.textContent = "Nenhum livro cadastrado.";
+                td.style.textAlign = "center";
                 tr.appendChild(td);
                 tabelaCorpo.appendChild(tr);
                 return;
@@ -95,70 +91,46 @@
             dados.forEach((livro) => {
                 const tr = document.createElement("tr");
 
-                const tdId = document.createElement("td");
-                tdId.textContent = livro.id_livro;
-                tr.appendChild(tdId);
-
-                const tdTitulo = document.createElement("td");
-                tdTitulo.textContent = livro.titulo;
-                tr.appendChild(tdTitulo);
-
-                const tdDescricao = document.createElement("td");
-                tdDescricao.textContent = livro.descricao;
-                tr.appendChild(tdDescricao);
-
-                const tdAutor = document.createElement("td");
-                tdAutor.textContent = livro.autor;
-                tr.appendChild(tdAutor);
-
-                const tdEstoque = document.createElement("td");
-                tdEstoque.textContent = livro.estoque !== null ? livro.estoque : "N/A";
-                tr.appendChild(tdEstoque);
-
-                const tdEditar = document.createElement("td");
-                tdEditar.classList.add("edit-icon");
-                const linkEditar = document.createElement("a");
-                linkEditar.textContent = "✏️";
-                tdEditar.appendChild(linkEditar);
-                linkEditar.href = `editar.html?id=${livro.id_livro}`;
-                tr.appendChild(tdEditar);
-
-
-                const tdDelete = document.createElement("td");
-                tdDelete.classList.add("delete-icon");
-                const btnDelete = document.createElement("button");
-                btnDelete.textContent = "🗑️";
-                tdDelete.appendChild(btnDelete);
-                btnDelete.addEventListener("click", () => {
-                    if (confirm(`Tem certeza de que deseja excluir o livro ${livro.titulo}?`)) {
-                        deleteLivro(livro.id_livro);
-                        alert("Livro excluído com sucesso!");
-                        location.reload();
-                    }
-                });
-                tr.appendChild(tdDelete);
+                tr.innerHTML = `
+                    <td>${livro.id_livro}</td>
+                    <td>${livro.titulo}</td>
+                    <td>${livro.descricao}</td>
+                    <td>${livro.autor}</td>
+                    <td>${livro.estoque !== null ? livro.estoque : "N/A"}</td>
+                    <td class="edit-icon"><a href="editar.html?id=${livro.id_livro}">✏️</a></td>
+                    <td class="delete-icon"><button class="btn-delete" data-id="${livro.id_livro}" data-titulo="${livro.titulo}">🗑️</button></td>
+                `;
 
                 tabelaCorpo.appendChild(tr);
+            });
+
+            // Adicionar eventos aos botões de delete
+            document.querySelectorAll(".btn-delete").forEach(btn => {
+                btn.onclick = async () => {
+                    const id = btn.getAttribute("data-id");
+                    const titulo = btn.getAttribute("data-titulo");
+                    if (confirm(`Tem certeza de que deseja excluir o livro "${titulo}"?`)) {
+                        try {
+                            await deleteLivro(id);
+                            alert("Livro excluído com sucesso!");
+                            location.reload();
+                        } catch (e) {
+                            alert("Erro ao excluir: " + e.message);
+                        }
+                    }
+                };
             });
         }
 
         async function buscarLivroTitulo(titulo) {
             const params = new URLSearchParams();
-            if (titulo) {
-                params.append("titulo", titulo);
+            if (titulo) params.append("titulo", titulo);
+            const resposta = await fetch(`${API_BASE}/livroTitulo?${params.toString()}`);
+            if (!resposta.ok) {
+                const erroData = await resposta.json();
+                throw new Error(erroData.message || `Erro HTTP: ${resposta.status}`);
             }
-            try {
-                const resposta = await fetch(`${API_BASE}/livroTitulo?${params.toString()}`);
-                if (!resposta.ok) {
-                    const erroData = await resposta.json();
-                    throw new Error(erroData.message || `Erro HTTP: ${resposta.status}`);
-                }
-                const livros = await resposta.json();
-                return livros;
-
-            } catch (erro) {
-                throw new Error(erro.message);
-            }
+            return await resposta.json();
         }
 
         async function filtrarLivro() {
@@ -166,8 +138,8 @@
             const titulo = document.getElementById("filtroTitulo").value;
             
             if (!titulo) {
-               msg.textContent = "Por favor, insira um título válido.";
-               msg.style.color = "red";
+               msg.textContent = "Por favor, insira um título para buscar.";
+               msg.style.color = "var(--error-color)";
                const dados = await buscarDadosTabela();
                preenchaTabela(dados);
                return;
@@ -176,20 +148,23 @@
             try {
                 const livros = await buscarLivroTitulo(titulo);
                 preenchaTabela(livros);
-                document.getElementById("filtroTitulo").value = "";
-
+                msg.textContent = `Resultados para "${titulo}"`;
+                msg.style.color = "var(--primary-color)";
             } catch (erro) {
-                msg.textContent = `Erro ao filtrar livros: ${erro.message}`;
-                msg.style.color = "red";
+                msg.textContent = `Erro ao filtrar: ${erro.message}`;
+                msg.style.color = "var(--error-color)";
             }
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
-            const dados = await buscarDadosTabela();
-            preenchaTabela(dados);
-
-            // Adicionando o evento de clique ao botão de filtrar
-            document.getElementById("filtrar").addEventListener("click", filtrarLivro);
+            try {
+                const dados = await buscarDadosTabela();
+                preenchaTabela(dados);
+                document.getElementById("filtrar").addEventListener("click", filtrarLivro);
+            } catch (e) {
+                document.getElementById("mensagem").textContent = "Erro ao carregar livros.";
+                document.getElementById("mensagem").style.color = "var(--error-color)";
+            }
         });
     </script>
 </body>

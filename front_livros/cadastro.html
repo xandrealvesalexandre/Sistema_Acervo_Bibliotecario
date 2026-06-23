@@ -2,39 +2,36 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Livros</title>
+    <title>Cadastrar Livro - Gestão de Acervo</title>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <h1>Sistema de Gestão de Acervo Bibliotecário</h1>
-    <hr>
-    <h2>Lista dos Livros</h2>  
-    <h3>Menu</h3>
-    <div>
-        <a href="principal.html"><button>Menu Principal</button></a>
-        <a href="listaLivros.html"><button>Lista Livro</button></a>
-        <br><br>
-    </div> 
-
-    <form id="FormLivro">
-        <div class="form-container">
-            <label for="titulo">Titulo:</label>
-            <input type="text" id="titulo" placeholder="Titulo" required>
-            <br><br>
-            <label for="autor">Autor:</label>
-            <input type="text" id="autor" placeholder="Autor" required>
-            <br><br>
-            <label for="descricao">Descricao:</label>
-            <input type="text" id="descricao" placeholder="Descricao" required>
-            <br><br>
-            <button type="submit">Cadastrar Livro</button>
-            <br><br>
-            <div class="mensagem-user">
-                <p id="mensagem"></p>
-            </div>                  
+    <div class="container">
+        <h1>Cadastrar Novo Livro</h1>
+        <hr>
+        
+        <div class="menu-actions">
+            <a href="principal.html" class="btn btn-secondary">Menu Principal</a>
+            <a href="listaLivros.html" class="btn btn-secondary">Lista de Livros</a>
         </div>
-    </form>
+
+        <form id="FormLivro">
+            <label for="titulo">Título do Livro:</label>
+            <input type="text" id="titulo" placeholder="Ex: O Senhor dos Anéis" required>
+            
+            <label for="autor">Autor:</label>
+            <input type="text" id="autor" placeholder="Ex: J.R.R. Tolkien" required>
+            
+            <label for="descricao">Descrição / Sinopse:</label>
+            <input type="text" id="descricao" placeholder="Breve resumo do livro..." required>
+            
+            <button type="submit">Cadastrar Livro</button>
+        </form>
+        
+        <p id="mensagem"></p>
+    </div>
+
     <script>
         const API_BASE = "../api_livros/public";
 
@@ -76,11 +73,11 @@
             try {
                 const resultado = await postCadastro(livro);
                 msg.textContent = "Livro cadastrado com sucesso!";
-                msg.style.color = "green";
+                msg.style.color = "var(--success-color)";
                 document.getElementById("FormLivro").reset();
             } catch (error) {
                 msg.textContent = `Erro ao cadastrar livro: ${error.message}`;
-                msg.style.color = "red";
+                msg.style.color = "var(--error-color)";
             }
         }
 

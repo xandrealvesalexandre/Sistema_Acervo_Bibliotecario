@@ -2,14 +2,186 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movimentação de Estoque</title>
+    <title>Movimentar Estoque - Gestão de Acervo</title>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <h1>Sistema de Gestão de Acervo Bibliotecário</h1>
-    <hr>
-    <h2>Movimentação de Estoque</h2>
-  
+    <div class="container">
+        <h1>Sistema de Gestão de Acervo Bibliotecário</h1>
+        <hr>
+        <h2>Movimentação de Estoque</h2>
+
+        <div class="menu-actions">
+            <a href="principal.html" class="btn btn-secondary">Menu Principal</a>
+            <a href="listaLivros.html" class="btn btn-secondary">Lista de Livros</a>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table id="tabelaLivros">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Estoque Atual</th>
+                        <th>Tipo Movimentação</th>
+                        <th>Quantidade</th>
+                        <th>Data</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Preenchido dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+        <p id="mensagem"></p>
+    </div>
+
+    <script>
+        const API_BASE = "../api_livros/public";
+
+        async function buscarDadosTabela() {
+            try {
+                const resposta = await fetch(`${API_BASE}/livros`);
+                if (!resposta.ok) {
+                    const erroData = await resposta.json();
+                    throw new Error(erroData.message || `Erro HTTP: ${resposta.status}`);
+                }
+                return await resposta.json();
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function postMovimentacao(movimentacao) {
+            try {
+                const resposta = await fetch(`${API_BASE}/estoque`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(movimentacao)
+                });
+
+                const dados = await resposta.json();
+                if (!resposta.ok) {
+                    throw new Error(dados.message || `Erro HTTP: ${resposta.status}`);
+                }
+                return dados;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function movimentarEstoque(id_livro, quantidade_atual, tipo_movimentacao, quantidade, data) {
+            if(!id_livro || tipo_movimentacao === "" || !quantidade || !data) {
+                alert("Todos os campos devem ser preenchidos.");
+                return;
+            }
+
+            quantidade = parseInt(quantidade);
+            quantidade_atual = parseInt(quantidade_atual) || 0;
+
+            if (quantidade <= 0) {
+                alert("A quantidade deve ser maior que zero.");
+                return;
+            }
+
+            if (tipo_movimentacao === "saida" && quantidade > quantidade_atual) {
+                alert("Quantidade insuficiente em estoque para saída!");
+                return;
+            }
+
+            const usuarioJson = sessionStorage.getItem("usuario");
+            if (!usuarioJson) {
+                alert("Sessão expirada. Faça login novamente.");
+                window.location.href = "index.html";
+                return;
+            }
+            const usuario = JSON.parse(usuarioJson);
+
+            const movimentacao = {
+                id_livro: id_livro,
+                id_usuario: usuario.id_usuario,
+                quantidade_atual: quantidade_atual,
+                tipo: tipo_movimentacao,
+                quantidade: quantidade,
+                data: data
+            };
+
+            try {
+                const result = await postMovimentacao(movimentacao);
+                alert(result.message);
+                location.reload();
+            } catch (error) {
+                alert("Erro ao movimentar estoque: " + error.message);
+            }
+        }
+
+        function preenchaTabela(dados) {
+            const tabelaCorpo = document.querySelector("#tabelaLivros tbody");
+            tabelaCorpo.innerHTML = "";
+
+            if (!dados || dados.length === 0) {
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+                td.colSpan = 7;
+                td.textContent = "Nenhum livro cadastrado.";
+                td.style.textAlign = "center";
+                tr.appendChild(td);
+                tabelaCorpo.appendChild(tr);
+                return;
+            }
+
+            dados.forEach(livro => {
+                const tr = document.createElement('tr');
+                const estoqueAtual = livro.estoque !== null ? livro.estoque : 0;
+
+                tr.innerHTML = `
+                    <td>${livro.id_livro}</td>
+                    <td>${livro.titulo}</td>
+                    <td>${estoqueAtual}</td>
+                    <td>
+                        <select id="tipo-${livro.id_livro}">
+                            <option value="entrada">Entrada</option>
+                            <option value="saida">Saída</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" id="qtd-${livro.id_livro}" min="1" placeholder="Qtd">
+                    </td>
+                    <td>
+                        <input type="date" id="data-${livro.id_livro}" value="${new Date().toISOString().split('T')[0]}">
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-registrar" data-id="${livro.id_livro}" data-atual="${estoqueAtual}">Registrar</button>
+                    </td>
+                `;
+                tabelaCorpo.appendChild(tr);
+            });
+
+            document.querySelectorAll(".btn-registrar").forEach(btn => {
+                btn.onclick = () => {
+                    const id = btn.getAttribute("data-id");
+                    const atual = btn.getAttribute("data-atual");
+                    const tipo = document.getElementById(`tipo-${id}`).value;
+                    const qtd = document.getElementById(`qtd-${id}`).value;
+                    const data = document.getElementById(`data-${id}`).value;
+                    movimentarEstoque(id, atual, tipo, qtd, data);
+                };
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const dados = await buscarDadosTabela();
+                preenchaTabela(dados);
+            } catch (e) {
+                document.getElementById("mensagem").textContent = "Erro ao carregar livros.";
+                document.getElementById("mensagem").style.color = "var(--error-color)";
+            }
+        });
+    </script>
 </body>
 </html>

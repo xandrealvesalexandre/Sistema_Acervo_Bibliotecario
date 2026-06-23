@@ -90,6 +90,23 @@
             return false;
             
         }
+
+        public function deleteLivro($id) {
+            $stmt = $this->db->prepare("
+                DELETE FROM Estoque 
+                WHERE id_livro = :id
+            ");
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+
+            $stmt = $this->db->prepare("
+                DELETE FROM Livros 
+                WHERE id_livro = :id
+            ");
+            $stmt->bindValue(':id', $id);
+            return $stmt->execute();
+           
+        }
     }
 
 ?>
